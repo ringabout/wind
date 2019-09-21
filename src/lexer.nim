@@ -1,4 +1,5 @@
 import types
+import tables
 import sets
 import lists
 
@@ -7,10 +8,17 @@ type
   Lexer* = ref object
     source*: string
     token*: SinglyLinkedList[Token]
+    #col* ==> 改成扫描式的
     start*: int
     current*: int  
 
-const keywords = ["min", "max"].toHashSet
+const 
+  keywords = ["min", "max", "let", "var"].toHashSet
+  charOperators*: set[char] = {'+', '-', '*', '/', '%', 
+                              ':', ',', '(', ')', '>', '<'}
+  charToken*: Table[char, TokenKind] = {'+': TkAdd, '-': TkMinus, '*': TkMul, '/': TkDiv, 
+                  '%': TkMod, ':': TkColon, ',': TkComma, 
+                  '(': TkLBrace, ')': TkRBrace, '<': TkLt, '>': TkGt}.toTable
 
 
 proc append*(lex: var Lexer, tk: Token) = 
@@ -85,25 +93,17 @@ proc tkIndent(lex: var Lexer): Token =
 proc tkSource*(lex: var Lexer): SinglyLinkedList[Token] = 
   while not lex.atEOF: 
     # echo lex.start, " -> ", lex.current, " -> ", lex.peek
-    case lex.peek
+    # 抽空改成哈希表
+    let value = lex.peek
+    case value
     of 'a' .. 'z', 'A' .. 'Z': 
       lex.append(lex.tkIndent)
       lex.move()
     of '0' .. '9':
       lex.append(lex.tkNum)
       lex.move()
-    of '+':
-      lex.append(lex.addToken(TkAdd))
-      echo lex.start, "->", lex.current, lex.source[lex.start .. lex.current]
-      lex.move()
-    of '-':
-      lex.append(lex.addToken(TkMinus))
-      lex.move()
-    of '*':
-      lex.append(lex.addToken(TkMul))
-      lex.move()
-    of '/':
-      lex.append(lex.addToken(TkDiv))
+    of charOperators:
+      lex.append(lex.addToken(charToken[value]))
       lex.move()
     of '=':
       lex.append(lex.addToken(TkEq))

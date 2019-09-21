@@ -48,9 +48,9 @@ proc term(cur: var SinglyLinkedNode[Token]): Node =
 
 proc factor(cur: var SinglyLinkedNode[Token]): Node= 
   let text = cur.value.text
-  if cur.consume(TkLparen):
+  if cur.consume(TkLBrace):
     result = cur.expression
-    doAssert cur.consume(TkRparen)
+    doAssert cur.consume(TkRBrace)
   elif cur.consume(TkInt):
     result = Node(kind: IntNode, intVar: text.parseInt)
   elif cur.consume(TkFloat):

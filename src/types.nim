@@ -1,3 +1,5 @@
+
+
 type 
   InterpretError* = Exception
 
@@ -20,10 +22,10 @@ type
 
 
   TokenKind* = enum 
-    TkAdd, TkMinus, TkMul, TkDiv
-    TkEq, TkNeq, TkSymbol
+    TkAdd, TkMinus, TkMul, TkDiv, TkMod, TkColon, Tkcomma
+    TkEq, TkNeq, TkSymbol, TkLt, TkGt
     TkIndent, TkInt, TkFloat, TkBool, TkString
-    TkLparen, TkRparen
+    TkLBrace, TkRBrace
     TkIf, TkWhile, TkFor
     TkEOL, TkError
 
@@ -35,6 +37,7 @@ type
 
 const
   chars: set[char] = {'a'..'z', 'A'..'Z', '_'}
+
   nums: set[char] = {'0'..'9'}
 
 proc isLetter*(ch: char): bool = ch in chars
