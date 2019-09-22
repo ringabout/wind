@@ -1,18 +1,25 @@
-
-
 type 
   InterpretError* = Exception
 
 
   NodeKind* = enum
+    ProgramNode, StmtNode, ExprNode AssignNode, EqualNode,
     IntNode, FloatNode, BoolNode, StringNode, IndentNode,
     AddNode, MulNode, MinusNode, DivNode,
     LtNode, GtNode, LeNode, GeNode,
-    EqNode, NeNode, IfNode
+    EqNode, NeNode, 
+    IfNode, WhileNode, ForNode, 
+    LetNode, VarNode
+    ProcNode, ReturnNode  
 
 
   Node* = ref object
     case kind*: NodeKind
+    of ProgramNode: code*: seq[Node]
+    of StmtNode: stmtvar*: Node
+    of ExprNode: exprvar*: Node
+    of AssignNode: indentvar*, value*: Node
+    of EqNode: relationvar*: Node
     of IntNode: intVar*: int  
     of FloatNode: floatVar*: float
     of BoolNode: boolvar*: bool 
@@ -22,10 +29,10 @@ type
 
 
   TokenKind* = enum 
-    TkAdd, TkMinus, TkMul, TkDiv, TkMod, TkColon, Tkcomma
-    TkEq, TkNeq, TkSymbol, TkLt, TkGt
+    TkAdd, TkMinus, TkMul, TkDiv, TkMod, TkColon, Tkcomma, TkAssign
+    TkEq, TkNeq, TkSymbol, TkLt, TkGt, TkComment, TkNewLine
     TkIndent, TkInt, TkFloat, TkBool, TkString
-    TkLBrace, TkRBrace
+    TkLBrace, TkRBrace, TkLParen, TkRParen, TkLBracket, TkRBracket
     TkIf, TkWhile, TkFor
     TkEOL, TkError
 
