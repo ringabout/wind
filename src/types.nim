@@ -3,34 +3,35 @@ type
 
 
   NodeKind* = enum
-    ProgramNode, StmtNode, ExprNode AssignNode, EqualNode,
-    IntNode, FloatNode, BoolNode, StringNode, IndentNode,
+    ProgramNode, StmtNode, ExprNode AssignNode, EqualNode, RelationalNode,
+    IntNode, FloatNode, BoolNode, StringNode, IndentNode, LeafNode
     AddNode, MulNode, MinusNode, DivNode,
     LtNode, GtNode, LeNode, GeNode,
-    EqNode, NeNode, 
+    EqNode, NeqNode, 
     IfNode, WhileNode, ForNode, 
     LetNode, VarNode
     ProcNode, ReturnNode  
+    ErrorNode
 
 
   Node* = ref object
     case kind*: NodeKind
     of ProgramNode: code*: seq[Node]
-    of StmtNode: stmtvar*: Node
-    of ExprNode: exprvar*: Node
-    of AssignNode: indentvar*, value*: Node
-    of EqNode: relationvar*: Node
+    of LeafNode: value*: Node
+    of IndentNode: name*: string
     of IntNode: intVar*: int  
     of FloatNode: floatVar*: float
     of BoolNode: boolvar*: bool 
     of StringNode: stringVar*: string
     of IfNode: condition*, thenPart*, elsePart*: Node 
+    of ErrorNode: discard
     else: left*, right*: Node
 
 
   TokenKind* = enum 
     TkAdd, TkMinus, TkMul, TkDiv, TkMod, TkColon, Tkcomma, TkAssign
-    TkEq, TkNeq, TkSymbol, TkLt, TkGt, TkComment, TkNewLine
+    TkEq, TkNeq, TkSymbol, TkLt, TkGt, TkLe, TkGe
+    TkComment, TkNewLine
     TkIndent, TkInt, TkFloat, TkBool, TkString
     TkLBrace, TkRBrace, TkLParen, TkRParen, TkLBracket, TkRBracket
     TkIf, TkWhile, TkFor
