@@ -10,15 +10,21 @@ type
     token*: SinglyLinkedList[Token]
     #col* ==> 改成扫描式的
     start*: int
-    current*: int  
+    current*: int
 
 const 
-  keywords = ["min", "max", "let", "var"].toHashSet
+  keywords = ["min", "max", "const", "let", "var", "proc", "return", 
+              "type", "mod", "div", "for", "in", "assert", "doAssert",
+              "break", "continue", "object","if", "elif", "echo"].toHashSet
   charOperators*: set[char] = {'+', '-', '*', '/', '%', 
-                              ':', ',', '(', ')', '>', '<'}
-  charToken*: Table[char, TokenKind] = {'+': TkAdd, '-': TkMinus, '*': TkMul, '/': TkDiv, 
-                  '%': TkMod, ':': TkColon, ',': TkComma, 
-                  '(': TkLBrace, ')': TkRBrace, '<': TkLt, '>': TkGt}.toTable
+                            '{', '}', '(', ')','[', ']', 
+                              ':', ',', 
+                              '#', '\n'}
+  charToken*: Table[char, TokenKind] = {'+': TkAdd, '-': TkMinus, 
+                  '*': TkMul, '/': TkDiv, '%': TkMod, 
+                  '{': TkLBrace, '}': TkRBrace, '(': TkLParen, ')': TkRParen,
+                  '[': TkLBracket, ']': TkRBracket, ':': TkColon, ',': TkComma, 
+                  '<': TkLt, '>': TkGt, '#': TkComment, '\n': TkNewLine}.toTable
 
 
 proc append*(lex: var Lexer, tk: Token) = 
@@ -52,8 +58,9 @@ proc peek(lex: var Lexer): char =
   return lex.source[lex.current]
 
 proc peekNext(lex: var Lexer): char =
-  lex.next()
-  lex.peek
+  if lex.source.len <= lex.current + 1:
+    return '\0'
+  return lex.source[lex.current+1]
 
 proc move(lex: var Lexer) = 
   if not lex.atEOF:
@@ -105,12 +112,37 @@ proc tkSource*(lex: var Lexer): SinglyLinkedList[Token] =
     of charOperators:
       lex.append(lex.addToken(charToken[value]))
       lex.move()
-    of '=':
-      lex.append(lex.addToken(TkEq))
+    of '!':
+      doAssert lex.peekNext == '='
+      lex.next()
+      lex.append(lex.addToken(TkNeq))
       lex.move()
+    of '=':
+      if lex.peekNext == '=':
+        lex.next()
+        lex.append(lex.addToken(TkEq))
+        lex.move()
+      else:
+        lex.append(lex.addToken(TkAssign))
+        lex.move()
+    of '<': 
+      if lex.peekNext == '=':
+        lex.next()
+        lex.append(lex.addToken(TkLe))
+        lex.move()
+      else:
+        lex.append(lex.addToken(TkLt))
+        lex.move()     
+    of '>': 
+      if lex.peekNext == '=':
+        lex.next()
+        lex.append(lex.addToken(TkGe))
+        lex.move()
+      else:
+        lex.append(lex.addToken(TkLe))
+        lex.move()     
     else:
       lex.start += 1
     lex.next()
     # echo lex.start, " -> ", lex.current, "->", lex.source.len
-  lex.token
-    
+  lex.token 
