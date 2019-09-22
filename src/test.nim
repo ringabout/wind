@@ -1,15 +1,16 @@
 import lexer
+import types
 import parser
+import ast
 
 
-
-
-
-var  lex = newLexer(source="let flag = 4 > 5")
+var  lex = newLexer(source="echo a >= 12")
 var source = lex.tkSource.head
-# let node = expression(source)
-# echo node.left.repr, " ==> ", node.kind, " ==> ", node.right.repr
+let node = program(source)
+echo $node
 
-while not source.isNil:
-  echo source.value.kind, " -> ", source.value.text.repr
-  source = source.next
+# while not source.isNil:
+#   echo source.value.kind, " -> ", source.value.text.repr, " <- "
+#   if source.value.kind == TkNewLine:
+#     echo "newline -> ", source.value.text == "\n" 
+#   source = source.next
