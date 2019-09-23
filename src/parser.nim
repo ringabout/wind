@@ -6,6 +6,12 @@ import lexer
 
 proc program*(cur: var SinglyLinkedNode[Token]): Node 
 proc statement*(cur: var SinglyLinkedNode[Token]): Node
+proc letExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc varExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc forExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc expression*(cur: var SinglyLinkedNode[Token]): Node
 proc equal*(cur: var SinglyLinkedNode[Token]): Node
 proc relational*(cur: var SinglyLinkedNode[Token]): Node
@@ -27,6 +33,16 @@ proc eat(cur: var SinglyLinkedNode[Token], given: TokenKind): bool =
     cur = cur.next
     true
 
+proc consume*(cur: var SinglyLinkedNode[Token], 
+                  given: TokenKind, name: string): bool =
+  let token = cur.value
+  if token.kind == TkError:
+    raise newException(ValueError, "TKError")
+  elif token.kind != given or token.text != name:
+    false
+  else:
+    cur = cur.next
+    true
 
 proc program*(cur: var SinglyLinkedNode[Token]): Node =
   let statement = cur.statement
@@ -39,9 +55,42 @@ proc program*(cur: var SinglyLinkedNode[Token]): Node =
 
 
 proc statement*(cur: var SinglyLinkedNode[Token]): Node = 
-  let expression = cur.expression
-  return Node(kind: LeafNode, value: expression)
 
+  if cur.consume(TkSymbol, "let"):
+    result = cur.letExpr
+  elif cur.consume(TkSymbol, "var"):
+    result = cur.varExpr
+  elif cur.consume(TkSymbol, "if"):
+    result = cur.ifExpr
+  elif cur.consume(TkSymbol, "while"):
+    result = cur.whileExpr
+  elif cur.consume(TkSymbol, "for"):
+    result = cur.forExpr
+  elif cur.consume(TkSymbol, "proc"):
+    result = cur.funcExpr
+  else:
+    result = cur.expression
+  
+
+
+
+proc letExpr*(cur: var SinglyLinkedNode[Token]): Node =
+  discard
+
+proc varExpr*(cur: var SinglyLinkedNode[Token]): Node = 
+  discard
+
+proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =  
+  discard
+
+proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node =
+  discard
+
+proc forExpr*(cur: var SinglyLinkedNode[Token]): Node =
+  discard
+
+proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node =
+  discard
 
 proc expression*(cur: var SinglyLinkedNode[Token]): Node = 
   var assign = cur.equal
