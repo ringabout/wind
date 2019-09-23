@@ -9,8 +9,8 @@ type
     LtNode, GtNode, LeNode, GeNode,
     EqNode, NeqNode, 
     IfNode, WhileNode, ForNode, 
-    LetNode, VarNode
-    ProcNode, ReturnNode  
+    LetNode, VarNode,
+    ProcNode, ReturnNode,
     ErrorNode
 
 
@@ -18,6 +18,12 @@ type
     case kind*: NodeKind
     of ProgramNode: code*: seq[Node]
     of LeafNode: value*: Node
+    of LetNode: 
+      letName*: string
+      letValue*: Node
+    of VarNode:
+      varName*: string
+      varValue*: Node
     of IndentNode: name*: string
     of IntNode: intVar*: int  
     of FloatNode: floatVar*: float
@@ -33,6 +39,7 @@ type
     TkEq, TkNeq, TkSymbol, TkLt, TkGt, TkLe, TkGe
     TkComment, TkNewLine
     TkIndent, TkInt, TkFloat, TkBool, TkString
+    # { } ( ) [ ]
     TkLBrace, TkRBrace, TkLParen, TkRParen, TkLBracket, TkRBracket
     TkIf, TkWhile, TkFor
     TkEOL, TkError
