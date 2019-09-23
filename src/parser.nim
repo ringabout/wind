@@ -17,7 +17,7 @@ proc primary*(cur: var SinglyLinkedNode[Token]): Node
 
 
 
-proc consume(cur: var SinglyLinkedNode[Token], given: TokenKind): bool = 
+proc eat(cur: var SinglyLinkedNode[Token], given: TokenKind): bool = 
   let token = cur.value
   if token.kind == TkError:
     raise newException(ValueError, "TKError")
@@ -32,7 +32,7 @@ proc program*(cur: var SinglyLinkedNode[Token]): Node =
   let statement = cur.statement
   var ndContainer = @[statement] 
   while not cur.isNil:
-    if cur.consume(TkNewLine):
+    if cur.eat(TkNewLine):
       ndContainer.add(cur.statement)
   Node(kind: ProgramNode, code: ndContainer)
 
@@ -44,9 +44,9 @@ proc statement*(cur: var SinglyLinkedNode[Token]): Node =
 
 
 proc expression*(cur: var SinglyLinkedNode[Token]): Node = 
-  let assign = cur.equal
+  var assign = cur.equal
   if not cur.isNil:
-    if cur.consume(TkAssign):
+    if cur.eat(TkAssign):
       return Node(kind: AssignNode, left: assign, right: cur.equal)
     else:
       return Node(kind: LeafNode, value: assign)
@@ -56,51 +56,54 @@ proc expression*(cur: var SinglyLinkedNode[Token]): Node =
 proc equal*(cur: var SinglyLinkedNode[Token]): Node = 
   let r1 = cur.relational
   if not cur.isNil:
-    if cur.consume(TkEq):
+    if cur.eat(TkEq):
       return Node(kind: EqNode, left: r1, right: cur.relational)
-    elif cur.consume(TkNeq):
+    elif cur.eat(TkNeq):
       return Node(kind: NeqNode, left: r1, right: cur.relational)
   return Node(kind: LeafNode, value: r1)
   
 
 
 proc relational*(cur: var SinglyLinkedNode[Token]): Node =
-  let a1 = cur.add
+  var a1 = cur.add
   if not cur.isNil:
-    if cur.consume(TkLt):
+    if cur.eat(TkLt):
       return Node(kind: LeNode, left: a1, right: cur.add)
-    elif cur.consume(TkGt):
+    elif cur.eat(TkGt):
       return Node(kind: GtNode, left: a1, right: cur.add)
-    elif cur.consume(TkLe):
+    elif cur.eat(TkLe):
       return Node(kind: LeNode, left: a1, right: cur.add)
-    elif cur.consume(TkGe):
+    elif cur.eat(TkGe):
       return Node(kind: GeNode, left: a1, right: cur.add)
-  return Node(kind: LeafNode, value: a1)
+  return a1
 
 proc add*(cur: var SinglyLinkedNode[Token]): Node = 
-  let t1 = cur.mul
-  if not cur.isNil:
-    if cur.consume(TKAdd):
-      return Node(kind: AddNode, left: t1, right: cur.mul)
-    elif cur.consume(TkMinus):
-      return Node(kind: MinusNode, left: t1, right: cur.mul)
-
-  return Node(kind: LeafNode, value: t1)
+  var t1 = cur.mul
+  while not cur.isNil:
+    if cur.eat(TKAdd):
+      t1 = Node(kind: AddNode, left: t1, right: cur.mul)
+    elif cur.eat(TkMinus):
+      t1 = Node(kind: MinusNode, left: t1, right: cur.mul)
+    else:
+      break
+  return t1
  
 proc mul*(cur: var SinglyLinkedNode[Token]): Node = 
-  let f1 = cur.unary
-  if not cur.isNil:
-    if cur.consume(TkMul):
-      return Node(kind: MulNode, left: f1, right: cur.unary)
-    elif cur.consume(TkDiv):
-      return Node(kind: DivNode, left: f1, right: cur.unary)
-  return Node(kind: LeafNode, value: f1)
+  var f1 = cur.unary
+  while not cur.isNil:
+    if cur.eat(TkMul):
+      f1 = Node(kind: MulNode, left: f1, right: cur.unary)
+    elif cur.eat(TkDiv):
+      f1 = Node(kind: DivNode, left: f1, right: cur.unary)
+    else:
+      break
+  return f1
  
 proc unary*(cur: var SinglyLinkedNode[Token]): Node =
   if not cur.isNil:
-    if cur.consume(TkAdd):
+    if cur.eat(TkAdd):
       return Node(kind: LeafNode, value: cur.primary)
-    elif cur.consume(TkMinus):
+    elif cur.eat(TkMinus):
       var primary = cur.primary
       case primary.kind:
         of FloatNode:
@@ -115,16 +118,16 @@ proc unary*(cur: var SinglyLinkedNode[Token]): Node =
 
 proc primary*(cur: var SinglyLinkedNode[Token]): Node = 
   let text = cur.value.text
-  if cur.consume(TkLBrace):
+  if cur.eat(TkLBrace):
     result = cur.expression
-    doAssert cur.consume(TkRBrace)
-  elif cur.consume(TkIndent):
+    doAssert cur.eat(TkRBrace)
+  elif cur.eat(TkIndent):
     result = Node(kind: IndentNode, name: text)
-  elif cur.consume(TkInt):
+  elif cur.eat(TkInt):
     result = Node(kind: IntNode, intVar: text.parseInt)
-  elif cur.consume(TkFloat):
+  elif cur.eat(TkFloat):
     result = Node(kind: FloatNode, floatVar: text.parseFloat)
-  elif cur.consume(TkBool):
+  elif cur.eat(TkBool):
     result = Node(kind: BoolNode, boolVar: text.parseBool)
-  elif cur.consume(TkString):
+  elif cur.eat(TkString):
     result = Node(kind: StringNode, stringVar: text)
