@@ -3,6 +3,8 @@ import strutils
 import types
 import lexer
 
+import tables
+
 
 proc program*(cur: var SinglyLinkedNode[Token]): Node 
 proc statement*(cur: var SinglyLinkedNode[Token]): Node
@@ -21,6 +23,7 @@ proc unary*(cur: var SinglyLinkedNode[Token]): Node
 proc primary*(cur: var SinglyLinkedNode[Token]): Node
 
 
+var envs*: Table[string, Node] 
 
 
 proc eat(cur: var SinglyLinkedNode[Token], given: TokenKind): bool = 
@@ -78,7 +81,9 @@ proc letExpr*(cur: var SinglyLinkedNode[Token]): Node =
     if cur.eat(TkIndent):
       let letName = text
       if cur.eat(TkAssign):
-        return Node(kind: LetNode, letName: letName, letValue: cur.expression)
+        let node = Node(kind: LetNode, letName: letName, letValue: cur.expression)
+        envs[letName] = node.letValue
+        return node
     return Node(kind: ErrorNode)
 
 
@@ -88,7 +93,9 @@ proc varExpr*(cur: var SinglyLinkedNode[Token]): Node =
     if cur.eat(TkIndent):
       let varName = text
       if cur.eat(TkAssign):
-        return Node(kind: VarNode, varName: varName, varValue: cur.expression)
+        let node = Node(kind: VarNode, varName: varName, varValue: cur.expression)
+        envs[varName] = node.varValue
+        return node
     return Node(kind: ErrorNode)
 
 proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =  
@@ -111,8 +118,7 @@ proc expression*(cur: var SinglyLinkedNode[Token]): Node =
   if not cur.isNil:
     if cur.eat(TkAssign):
       return Node(kind: AssignNode, left: assign, right: cur.equal)
-    else:
-      return assign
+
   return assign
 
 
@@ -131,7 +137,7 @@ proc relational*(cur: var SinglyLinkedNode[Token]): Node =
   var a1 = cur.add
   if not cur.isNil:
     if cur.eat(TkLt):
-      return Node(kind: LeNode, left: a1, right: cur.add)
+      return Node(kind: LtNode, left: a1, right: cur.add)
     elif cur.eat(TkGt):
       return Node(kind: GtNode, left: a1, right: cur.add)
     elif cur.eat(TkLe):

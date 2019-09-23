@@ -15,7 +15,7 @@ type
 const 
   keywords = ["min", "max", "const", "let", "var", "proc", "return", 
               "type", "mod", "div", "for", "in", "assert", "doAssert",
-              "break", "continue", "object","if", "elif", "echo"].toHashSet
+              "break", "continue", "object","if", "elif", "else", "echo"].toHashSet
   charOperators*: set[char] = {'+', '-', '*', '/', '%', 
                             '{', '}', '(', ')','[', ']', 
                               ':', ',', 
@@ -139,7 +139,7 @@ proc tkSource*(lex: var Lexer): SinglyLinkedList[Token] =
         lex.append(lex.addToken(TkGe))
         lex.move()
       else:
-        lex.append(lex.addToken(TkLe))
+        lex.append(lex.addToken(TkGt))
         lex.move()     
     else:
       lex.start += 1
