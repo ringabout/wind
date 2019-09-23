@@ -4,8 +4,9 @@ import parser
 import ast
 
 
-var  lex = newLexer(source="echo a >= 12")
+var  lex = newLexer(source=" let age = 12\nvar name = 12 > 3")
 var source = lex.tkSource.head
+
 let node = program(source)
 echo $node
 
