@@ -55,33 +55,47 @@ proc program*(cur: var SinglyLinkedNode[Token]): Node =
 
 
 proc statement*(cur: var SinglyLinkedNode[Token]): Node = 
-
-  if cur.consume(TkSymbol, "let"):
-    result = cur.letExpr
-  elif cur.consume(TkSymbol, "var"):
-    result = cur.varExpr
-  elif cur.consume(TkSymbol, "if"):
-    result = cur.ifExpr
-  elif cur.consume(TkSymbol, "while"):
-    result = cur.whileExpr
-  elif cur.consume(TkSymbol, "for"):
-    result = cur.forExpr
-  elif cur.consume(TkSymbol, "proc"):
-    result = cur.funcExpr
-  else:
-    result = cur.expression
+  if not cur.isNil:
+    if cur.consume(TkSymbol, "let"):
+      result = cur.letExpr
+    elif cur.consume(TkSymbol, "var"):
+      result = cur.varExpr
+    elif cur.consume(TkSymbol, "if"):
+      result = cur.ifExpr
+    elif cur.consume(TkSymbol, "while"):
+      result = cur.whileExpr
+    elif cur.consume(TkSymbol, "for"):
+      result = cur.forExpr
+    elif cur.consume(TkSymbol, "proc"):
+      result = cur.funcExpr
+    else:
+      result = cur.expression
   
 
-
-
 proc letExpr*(cur: var SinglyLinkedNode[Token]): Node =
-  discard
+  if not cur.isNil:
+    let text = cur.value.text
+    if cur.eat(TkIndent):
+      let letName = text
+      if cur.eat(TkAssign):
+        return Node(kind: LetNode, letName: letName, letValue: cur.expression)
+    return Node(kind: ErrorNode)
+
 
 proc varExpr*(cur: var SinglyLinkedNode[Token]): Node = 
-  discard
+  if not cur.isNil:
+    let text = cur.value.text
+    if cur.eat(TkIndent):
+      let varName = text
+      if cur.eat(TkAssign):
+        return Node(kind: VarNode, varName: varName, varValue: cur.expression)
+    return Node(kind: ErrorNode)
 
 proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =  
-  discard
+  if not cur.isNil:
+    let cond = cur.expression
+    if cur.eat(TkLBrace):
+      discard
 
 proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node =
   discard
@@ -98,8 +112,8 @@ proc expression*(cur: var SinglyLinkedNode[Token]): Node =
     if cur.eat(TkAssign):
       return Node(kind: AssignNode, left: assign, right: cur.equal)
     else:
-      return Node(kind: LeafNode, value: assign)
-  return Node(kind: LeafNode, value: assign)
+      return assign
+  return assign
 
 
 proc equal*(cur: var SinglyLinkedNode[Token]): Node = 
@@ -109,7 +123,7 @@ proc equal*(cur: var SinglyLinkedNode[Token]): Node =
       return Node(kind: EqNode, left: r1, right: cur.relational)
     elif cur.eat(TkNeq):
       return Node(kind: NeqNode, left: r1, right: cur.relational)
-  return Node(kind: LeafNode, value: r1)
+  return r1
   
 
 
@@ -151,7 +165,7 @@ proc mul*(cur: var SinglyLinkedNode[Token]): Node =
 proc unary*(cur: var SinglyLinkedNode[Token]): Node =
   if not cur.isNil:
     if cur.eat(TkAdd):
-      return Node(kind: LeafNode, value: cur.primary)
+      return cur.primary
     elif cur.eat(TkMinus):
       var primary = cur.primary
       case primary.kind:
@@ -161,8 +175,8 @@ proc unary*(cur: var SinglyLinkedNode[Token]): Node =
           primary.intVar = 0 - primary.intVar
         else:
           return Node(kind: ErrorNode)
-      return Node(kind: LeafNode, value: primary)
-  return Node(kind: LeafNode, value: cur.primary)
+      return primary
+  return cur.primary
 
 
 proc primary*(cur: var SinglyLinkedNode[Token]): Node = 
