@@ -25,7 +25,7 @@ const
                   '{': TkLBrace, '}': TkRBrace, '(': TkLParen, ')': TkRParen,
                   '[': TkLBracket, ']': TkRBracket, ':': TkColon, ',': TkComma, 
                   '<': TkLt, '>': TkGt, '#': TkComment, '\n': TkNewLine}.toTable
-
+  typewords* = ["int", "float", "bool", "string"].toHashSet
 
 proc append*(lex: var Lexer, tk: Token) = 
   lex.token.append(tk)
@@ -93,6 +93,8 @@ proc tkIndent(lex: var Lexer): Token =
   lex.current -= 1
   if lex.pickToken in keywords:
     lex.addToken(TkSymbol)
+  elif lex.pickToken in typewords:
+    lex.addToken(TkType)
   else:
     lex.addToken(TkIndent)
 

@@ -45,9 +45,6 @@ proc eval*(root: Node): Value =
     discard
   
 
-
-
-
 proc `$`*(root: Node): string = 
   case root.kind 
   of IndentNode:
@@ -57,9 +54,12 @@ proc `$`*(root: Node): string =
   of AssignNode:
     result &= fmt"{$root.left} = {$root.right})"
   of LetNode:
-    result &= fmt"let {root.letName} = {$root.letValue}"
+    result &= fmt"let {root.letName}: {root.letType} = {$root.letValue}"
   of VarNode:
-    result &= fmt"var {root.varName} = {root.varValue}"
+    result &= fmt"var {root.varName}: {root.varType} = {root.varValue}"
+  of IfNode:
+    result &= fmt"if {root.condPart} " & "{" & fmt"{root.ifPart}" & "}" & 
+          "\nelse {" & fmt"{root.elsePart}" & "}"
   of AddNode:
     result &= fmt"{root.left} + {root.right}"
   of MinusNode:
@@ -76,6 +76,8 @@ proc `$`*(root: Node): string =
     result &= fmt"{$root.left} < {$root.right}"
   of GtNode:
     result &= fmt"{$root.left} > {$root.right}"
+  of EqNode:
+    result &= fmt"{$root.left} == {$root.right}"
   of ProgramNode:
     for r in root.code:
       result &= $r

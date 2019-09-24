@@ -4,32 +4,38 @@ type
 
   NodeKind* = enum
     ProgramNode, StmtNode, ExprNode AssignNode, EqualNode, RelationalNode,
-    IntNode, FloatNode, BoolNode, StringNode, IndentNode, LeafNode
+    IntNode, FloatNode, BoolNode, StringNode, IndentNode
     AddNode, MulNode, MinusNode, DivNode,
     LtNode, GtNode, LeNode, GeNode,
     EqNode, NeqNode, 
     IfNode, WhileNode, ForNode, 
     LetNode, VarNode,
     ProcNode, ReturnNode,
-    ErrorNode
+    ErrorNode, NilNode
 
 
   Node* = ref object
     case kind*: NodeKind
     of ProgramNode: code*: seq[Node]
-    of LeafNode: value*: Node
     of LetNode: 
       letName*: string
       letValue*: Node
+      letType*: string
     of VarNode:
       varName*: string
       varValue*: Node
+      varType*: string
     of IndentNode: name*: string
     of IntNode: intVar*: int  
     of FloatNode: floatVar*: float
     of BoolNode: boolvar*: bool 
     of StringNode: stringVar*: string
-    of IfNode: condition*, thenPart*, elsePart*: Node 
+    of IfNode: 
+      condPart*: Node
+      ifPart*: Node 
+      elifPart*: seq[Node]
+      elsePart*: Node 
+    of NilNode: discard
     of ErrorNode: discard
     else: left*, right*: Node
 
@@ -38,10 +44,10 @@ type
     TkAdd, TkMinus, TkMul, TkDiv, TkMod, TkColon, Tkcomma, TkAssign
     TkEq, TkNeq, TkSymbol, TkLt, TkGt, TkLe, TkGe
     TkComment, TkNewLine
-    TkIndent, TkInt, TkFloat, TkBool, TkString
+    TkIndent, TkInt, TkFloat, TkBool, TkString, TkType
     # { } ( ) [ ]
     TkLBrace, TkRBrace, TkLParen, TkRParen, TkLBracket, TkRBracket
-    TkIf, TkWhile, TkFor
+    TkWhile, TkFor
     TkEOL, TkError
 
   TokenObj = ref object of RootObj
