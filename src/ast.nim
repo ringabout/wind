@@ -57,9 +57,13 @@ proc `$`*(root: Node): string =
     result &= fmt"let {root.letName}: {root.letType} = {$root.letValue}"
   of VarNode:
     result &= fmt"var {root.varName}: {root.varType} = {root.varValue}"
+  of NilNode:  
+    result &= ""
   of IfNode:
     result &= fmt"if {root.condPart} " & "{" & fmt"{root.ifPart}" & "}" & 
           "\nelse {" & fmt"{root.elsePart}" & "}"
+  of WhileNode:
+    result &= fmt"while {root.whilePart}" & "{" & fmt"{root.bodyPart}" & "}"
   of AddNode:
     result &= fmt"{root.left} + {root.right}"
   of MinusNode:

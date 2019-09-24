@@ -144,9 +144,19 @@ proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =
         
 
       
-
 proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node =
-  discard
+  var
+    whilePart: Node
+    bodyPart: Node
+  if not cur.isNil:
+    whilePart = cur.expression
+    if cur.eat(TkLBrace):
+      discard cur.eat(TkNewLine)
+      bodyPart = cur.statement
+      discard cur.eat(TkNewLine)
+      doAssert cur.eat(TkRBrace)
+  return Node(kind: WhileNode, whilePart: whilePart, bodyPart: bodyPart)
+        
 
 proc forExpr*(cur: var SinglyLinkedNode[Token]): Node =
   if not cur.isNil:

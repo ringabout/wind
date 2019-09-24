@@ -15,7 +15,8 @@ type
 const 
   keywords = ["min", "max", "const", "let", "var", "proc", "return", 
               "type", "mod", "div", "for", "in", "assert", "doAssert",
-              "break", "continue", "object","if", "elif", "else", "echo"].toHashSet
+              "break", "continue", "object","if", "elif", "else", 
+              "while", "echo"].toHashSet
   charOperators*: set[char] = {'+', '-', '*', '/', '%', 
                             '{', '}', '(', ')','[', ']', 
                               ':', ',', 

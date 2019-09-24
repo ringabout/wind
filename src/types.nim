@@ -35,6 +35,9 @@ type
       ifPart*: Node 
       elifPart*: seq[Node]
       elsePart*: Node 
+    of WhileNode:
+      whilePart*: Node
+      bodyPart*: Node
     of NilNode: discard
     of ErrorNode: discard
     else: left*, right*: Node

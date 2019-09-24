@@ -4,8 +4,7 @@ import parser
 import ast
 
 
-var  lex = newLexer(source="if name == 12{let age:" &
-                  "int = 10}else{let age:int = 10}\n # qhuwderfvcj76325\n")
+var  lex = newLexer(source="while age > 10 {if name == 3 {var c: float = 12}}\n")
 var source = lex.tkSource.head
 
 let node = program(source)
