@@ -52,6 +52,8 @@ proc program*(cur: var SinglyLinkedNode[Token]): Node =
   var ndContainer = @[statement] 
   while not cur.isNil:
     if cur.eat(TkNewLine):
+      if cur.eat(TkEof):
+        break
       ndContainer.add(cur.statement)
   Node(kind: ProgramNode, code: ndContainer)
 
@@ -159,7 +161,6 @@ proc expression*(cur: var SinglyLinkedNode[Token]): Node =
   if not cur.isNil:
     if cur.eat(TkAssign):
       return Node(kind: AssignNode, left: assign, right: cur.equal)
-
   return assign
 
 

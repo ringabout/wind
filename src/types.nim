@@ -43,12 +43,12 @@ type
   TokenKind* = enum 
     TkAdd, TkMinus, TkMul, TkDiv, TkMod, TkColon, Tkcomma, TkAssign
     TkEq, TkNeq, TkSymbol, TkLt, TkGt, TkLe, TkGe
-    TkComment, TkNewLine
+    TkComment, TkNewLine, TkEof
     TkIndent, TkInt, TkFloat, TkBool, TkString, TkType
     # { } ( ) [ ]
     TkLBrace, TkRBrace, TkLParen, TkRParen, TkLBracket, TkRBracket
     TkWhile, TkFor
-    TkEOL, TkError
+    TkError
 
   TokenObj = ref object of RootObj
     kind*: TokenKind

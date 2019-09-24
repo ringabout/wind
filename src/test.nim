@@ -5,7 +5,7 @@ import ast
 
 
 var  lex = newLexer(source="if name == 12{let age:" &
-                  "int = 10}else{let age:int = 10}")
+                  "int = 10}else{let age:int = 10}\n # qhuwderfvcj76325\n")
 var source = lex.tkSource.head
 
 let node = program(source)

@@ -19,7 +19,7 @@ const
   charOperators*: set[char] = {'+', '-', '*', '/', '%', 
                             '{', '}', '(', ')','[', ']', 
                               ':', ',', 
-                              '#', '\n'}
+                              '\n'}
   charToken*: Table[char, TokenKind] = {'+': TkAdd, '-': TkMinus, 
                   '*': TkMul, '/': TkDiv, '%': TkMod, 
                   '{': TkLBrace, '}': TkRBrace, '(': TkLParen, ')': TkRParen,
@@ -134,7 +134,12 @@ proc tkSource*(lex: var Lexer): SinglyLinkedList[Token] =
         lex.move()
       else:
         lex.append(lex.addToken(TkLt))
-        lex.move()     
+        lex.move()    
+    of '#': 
+      while lex.peek != '\n':
+        lex.next()
+      lex.next()
+      lex.move()
     of '>': 
       if lex.peekNext == '=':
         lex.next()
@@ -146,5 +151,6 @@ proc tkSource*(lex: var Lexer): SinglyLinkedList[Token] =
     else:
       lex.start += 1
     lex.next()
+  lex.append(Token(kind: TkEof, text: "nil"))
     # echo lex.start, " -> ", lex.current, "->", lex.source.len
   lex.token 
