@@ -6,34 +6,32 @@ import tables
 
 proc `$`*(root: Node): string
 
-type 
-  Value = string
 
-import strutils
+
 # 直接执行
 proc eval*(root: Node): Value =
   var
-    tempBool: bool
-    tempInt: int
-    tempStr: string
+    tempBool: Value
+    tempInt: Value
+    tempStr: Value
   case root.kind
   of IndentNode:
-    result = eval(envs[root.name])
+    result = eval(envs[root.identName])
   of IntNode:
-    result = $root.intVar
+    result = root.intVar
   of GtNode:
-    tempBool = eval(root.left).parseInt > eval(root.right).parseInt
-    result = $tempBool
+    tempBool = eval(root.left) > eval(root.right)
+    result = tempBool
   of LetNode:
     envs[root.letName] = root.letValue
   of VarNode:
     envs[root.varName] = root.varValue
   of AddNode:
-    tempInt = eval(root.left).parseInt + eval(root.right).parseInt
-    result = $tempInt
+    tempInt = eval(root.left) + eval(root.right)
+    result = tempInt
   of MulNode:
-    tempInt = eval(root.left).parseInt * eval(root.right).parseInt
-    result = $tempInt
+    tempInt = eval(root.left) * eval(root.right)
+    result = tempInt
   of ProgramNode:
     for r in root.code:
       tempStr = eval(r)
@@ -48,7 +46,7 @@ proc eval*(root: Node): Value =
 proc `$`*(root: Node): string = 
   case root.kind 
   of IndentNode:
-    result &= root.name
+    result &= root.identName
   of IntNode:
     result &= $root.intVar
   of AssignNode:

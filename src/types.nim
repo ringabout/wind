@@ -1,6 +1,10 @@
 type 
   InterpretError* = Exception
-
+  Value* = enum
+    ObjInt 
+    ObjFloat
+    ObjString 
+    ObjBool
 
   NodeKind* = enum
     ProgramNode, StmtNode, ExprNode AssignNode, EqualNode, RelationalNode,
@@ -10,7 +14,7 @@ type
     EqNode, NeqNode, 
     IfNode, WhileNode, ForNode, 
     LetNode, VarNode,
-    ProcNode, ReturnNode,
+    ProcNode
     ErrorNode, NilNode
 
 
@@ -40,6 +44,7 @@ type
     of IfNode: 
       condPart*: Node
       ifPart*: Node 
+      elifCond*: seq[Node]
       elifPart*: seq[Node]
       elsePart*: Node
     of WhileNode:
@@ -69,6 +74,8 @@ type
     kind*: TokenKind
     text*: string
   Token* = TokenObj
+
+
 
 
 const
