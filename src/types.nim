@@ -25,6 +25,9 @@ type
       varName*: string
       varValue*: Node
       varType*: string
+    of AssignNode:
+      leftValue*: Node
+      rightValue*: seq[Node]
     of IndentNode: 
       identName*: string
     of ArgNode: 
