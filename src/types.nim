@@ -4,7 +4,7 @@ type
 
   NodeKind* = enum
     ProgramNode, StmtNode, ExprNode AssignNode, EqualNode, RelationalNode,
-    IntNode, FloatNode, BoolNode, StringNode, IndentNode
+    IntNode, FloatNode, BoolNode, StringNode, IndentNode, ArgNode
     AddNode, MulNode, MinusNode, DivNode,
     LtNode, GtNode, LeNode, GeNode,
     EqNode, NeqNode, 
@@ -25,7 +25,11 @@ type
       varName*: string
       varValue*: Node
       varType*: string
-    of IndentNode: name*: string
+    of IndentNode: 
+      identName*: string
+    of ArgNode: 
+      argName*: string
+      argType*: string
     of IntNode: intVar*: int  
     of FloatNode: floatVar*: float
     of BoolNode: boolvar*: bool 
@@ -34,10 +38,15 @@ type
       condPart*: Node
       ifPart*: Node 
       elifPart*: seq[Node]
-      elsePart*: Node 
+      elsePart*: Node
     of WhileNode:
       whilePart*: Node
       bodyPart*: Node
+    of ProcNode:
+      procName*: string
+      argsPart*: seq[Node]
+      returnType*: string
+      returnPart*: Node
     of NilNode: discard
     of ErrorNode: discard
     else: left*, right*: Node

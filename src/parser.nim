@@ -13,7 +13,8 @@ proc varExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc forExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node
-proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node 
+proc argExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc expression*(cur: var SinglyLinkedNode[Token]): Node
 proc equal*(cur: var SinglyLinkedNode[Token]): Node
 proc relational*(cur: var SinglyLinkedNode[Token]): Node
@@ -164,7 +165,37 @@ proc forExpr*(cur: var SinglyLinkedNode[Token]): Node =
       discard
 
 proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node =
-  discard
+  var
+    procName: string
+    argsPart: seq[Node]
+    returnType: string
+    returnNode: Node
+  if not cur.isNil:
+    procName = cur.value.text
+    doAssert cur.eat(TkLParen)
+    while not cur.isNil and not cur.eat(TkRParen):
+      argsPart.add(cur.argExpr)
+      # if not cur.isNil:
+      #   whilePart = cur.expression
+      #   if cur.eat(TkLBrace):
+      #     discard cur.eat(TkNewLine)
+      #     bodyPart = cur.statement
+      #     discard cur.eat(TkNewLine)
+      #     doAssert cur.eat(TkRBrace)
+
+    
+proc argExpr*(cur: var SinglyLinkedNode[Token]): Node = 
+  var 
+    argName: string
+    argType: string
+  argName = cur.value.text
+  doAssert cur.eat(TkIndent)
+  doAssert cur.eat(TkColon)
+  argType = cur.value.text
+  result = Node(kind: ArgNode, argName: argName, argType: argType)
+  if cur.next.value.kind != TkRParen:
+    doAssert cur.eat(TkComma)
+  
 
 proc expression*(cur: var SinglyLinkedNode[Token]): Node = 
   var assign = cur.equal
@@ -243,7 +274,7 @@ proc primary*(cur: var SinglyLinkedNode[Token]): Node =
     result = cur.expression
     doAssert cur.eat(TkRBrace)
   elif cur.eat(TkIndent):
-    result = Node(kind: IndentNode, name: text)
+    result = Node(kind: IndentNode, identName: text)
   elif cur.eat(TkInt):
     result = Node(kind: IntNode, intVar: text.parseInt)
   elif cur.eat(TkFloat):
