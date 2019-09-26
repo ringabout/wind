@@ -1,7 +1,6 @@
 import lists
 import strutils
 import types
-import lexer
 
 import tables
 
@@ -10,7 +9,7 @@ proc program*(cur: var SinglyLinkedNode[Token]): Node
 proc statement*(cur: var SinglyLinkedNode[Token]): Node
 proc letExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc varExpr*(cur: var SinglyLinkedNode[Token]): Node
-proc bodyExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc bodyExpr*(cur: var SinglyLinkedNode[Token]): BlockStatement
 proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc forExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node
@@ -74,8 +73,6 @@ proc statement*(cur: var SinglyLinkedNode[Token]): Node =
       result = cur.forExpr
     elif cur.consume(TkSymbol, "proc"):
       result = cur.funcExpr
-    elif cur.consume(TkSymbol, "return"):
-      result = cur.retExpr
     else:
       result = cur.expression
   
@@ -123,19 +120,22 @@ proc varExpr*(cur: var SinglyLinkedNode[Token]): Node =
       return node
     return Node(kind: ErrorNode)
 
-proc bodyExpr*(cur: var SinglyLinkedNode[Token]): Node = 
+proc bodyExpr*(cur: var SinglyLinkedNode[Token]): BlockStatement = 
   discard cur.eat(TkNewLine)
-  result = cur.statement
+  while not cur.isNil and cur.eat(TkNewLine):
+    if cur.consume(TkSymbol, "return"):
+      result.blockPart.add(cur.retExpr)
+    result.blockPart.add(cur.statement)
   discard cur.eat(TkNewLine)
   doAssert cur.eat(TkRBrace)
 
 proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =  
   var 
     condPart: Node 
-    ifPart: Node
+    ifPart: BlockStatement
     elifCond: seq[Node]
-    elifPart: seq[Node] = @[]
-    elsePart: Node = Node(kind: NilNode)
+    elifPart: seq[BlockStatement] = @[]
+    elsePart: BlockStatement 
   if not cur.isNil:
     condPart = cur.expression
     doAssert cur.eat(TkLBrace)
@@ -145,7 +145,7 @@ proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =
       elifPart.add(cur.bodyExpr)
     if not cur.isNil and cur.consume(TkSymbol, "else"):
       doAssert cur.eat(TkLBrace)
-      elsePart = cur.bodyExpr
+      elsePart  = cur.bodyExpr
 
   return Node(kind: IfNode, condPart: condPart, ifPart: ifPart, 
                 elifPart: elifPart, elsePart: elsePart)
@@ -153,7 +153,7 @@ proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =
 proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node =
   var
     whilePart: Node
-    bodyPart: Node
+    bodyPart: BlockStatement
   if not cur.isNil:
     whilePart = cur.expression
     doAssert cur.eat(TkLBrace)
@@ -170,19 +170,17 @@ proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node =
     procName: string
     argsPart: seq[Node]
     returnType: string
-    returnNode: Node
+    returnNode: BlockStatement
   if not cur.isNil:
     procName = cur.value.text
     doAssert cur.eat(TkLParen)
     while not cur.isNil and not cur.eat(TkRParen):
       argsPart.add(cur.argExpr)
-      # if not cur.isNil:
-      #   doAssert cur.eat(TkColon)
-      #   returnType = cur.value.text
-      #   doAssert cur.eat(TkLBrace):
-      #   # bodyPar = cur.bodyExpr
+    if not cur.isNil:
+      doAssert cur.eat(TkColon)
+      returnType = cur.value.text
+      returnNode = cur.bodyExpr
 
-  
 proc argExpr*(cur: var SinglyLinkedNode[Token]): Node = 
   var 
     argName: string

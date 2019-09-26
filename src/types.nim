@@ -1,10 +1,15 @@
 type 
   InterpretError* = Exception
+
   Value* = enum
     ObjInt 
     ObjFloat
     ObjString 
     ObjBool
+
+  
+  BlockStatement* = ref object of RootObj
+    blockPart*: seq[Node]
 
   NodeKind* = enum
     ProgramNode, StmtNode, ExprNode AssignNode, EqualNode, RelationalNode,
@@ -12,8 +17,8 @@ type
     AddNode, MulNode, MinusNode, DivNode,
     LtNode, GtNode, LeNode, GeNode,
     EqNode, NeqNode, 
-    IfNode, WhileNode, ForNode, 
-    LetNode, VarNode,
+    IfNode, WhileNode, ForNode
+    LetNode, VarNode, BlockNode,
     ProcNode
     ErrorNode, NilNode
 
@@ -43,13 +48,13 @@ type
     of StringNode: stringVar*: string
     of IfNode: 
       condPart*: Node
-      ifPart*: Node 
+      ifPart*: BlockStatement
       elifCond*: seq[Node]
-      elifPart*: seq[Node]
-      elsePart*: Node
+      elifPart*: seq[BlockStatement]
+      elsePart*: BlockStatement
     of WhileNode:
       whilePart*: Node
-      bodyPart*: Node
+      bodyPart*: BlockStatement
     of ProcNode:
       procName*: string
       argsPart*: seq[Node]
@@ -74,6 +79,7 @@ type
     kind*: TokenKind
     text*: string
   Token* = TokenObj
+
 
 
 
