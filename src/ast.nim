@@ -7,41 +7,52 @@ import tables
 proc `$`*(root: Node): string
 
 
+type
+  BlockScope* = ref object
+    scope*: Table[string, Node]
+  Obj* = ref object of RootObj
+    case tag*: Value
+    of ObjInt: intVar: int
+    of ObjFloat: floatVar: float
+    of ObjBool: boolVar: bool
+    of ObjString: stringVar: string
 
-# 直接执行
-proc eval*(root: Node): Value =
-  var
-    tempBool: Value
-    tempInt: Value
-    tempStr: Value
+
+
+#直接执行
+proc eval*(root: Node): Obj =
+  var temp: Obj
   case root.kind
   of IndentNode:
     result = eval(envs[root.identName])
   of IntNode:
-    result = root.intVar
+    result.tag = ObjInt
+    result.intVar = root.intVar
   of GtNode:
-    tempBool = eval(root.left) > eval(root.right)
-    result = tempBool
+    result.tag = ObjBool
+    result.boolVar = eval(root.left).intVar > eval(root.right).intVar
   of LetNode:
     envs[root.letName] = root.letValue
   of VarNode:
     envs[root.varName] = root.varValue
   of AddNode:
-    tempInt = eval(root.left) + eval(root.right)
-    result = tempInt
+    result.tag = ObjInt
+    result.intVar = eval(root.left).intVar + eval(root.right).intVar
   of MulNode:
-    tempInt = eval(root.left) * eval(root.right)
-    result = tempInt
+    result.tag = ObjInt
+    result.intVar = eval(root.left).intVar * eval(root.right).intVar
   of ProgramNode:
     for r in root.code:
-      tempStr = eval(r)
-      if tempStr == "":
+      temp = eval(r)
+      if temp == nil:
         echo envs
       else:
-        echo tempStr
+        echo temp.repr
   else:
     discard
-  
+
+proc `$`*(root: BlockStatement): string = 
+  discard
 
 proc `$`*(root: Node): string = 
   case root.kind 
