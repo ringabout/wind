@@ -19,6 +19,10 @@ type
     of ObjString: stringVar: string
 
 
+proc getUpper(tag: Value) = 
+  case tag:
+  of ObjInt:  discard
+  else: discard
 
 
 #直接执行
@@ -34,6 +38,7 @@ proc eval*(root: Node): Obj =
     result.tag = ObjBool
     result.boolVar = eval(root.left).intVar > eval(root.right).intVar
   of LetNode:
+    doAssert root.letType == $(eval(root.letValue).tag)
     envs[root.letName] = root.letValue
   of VarNode:
     envs[root.varName] = root.varValue
