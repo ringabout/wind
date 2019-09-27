@@ -141,6 +141,12 @@ proc tkSource*(lex: var Lexer): SinglyLinkedList[Token] =
         lex.next()
       lex.next()
       lex.move()
+    of '"':
+      while lex.peekNext != '"':
+        lex.next()
+      lex.next()
+      lex.append(lex.addToken(TkString))
+      lex.move()
     of '>': 
       if lex.peekNext == '=':
         lex.next()
