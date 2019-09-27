@@ -33,9 +33,24 @@ proc eval*(root: Node): Obj =
   of IntNode:
     result.tag = ObjInt
     result.intVar = root.intVar
+  of FloatNode:
+    result.tag = ObjFloat
+    result.floatVar = root.floatVar
+  of BoolNode:
+    result.tag = ObjBool
+    result.boolVar = root.boolVar
   of GtNode:
     result.tag = ObjBool
     result.boolVar = eval(root.left).intVar > eval(root.right).intVar
+  of LtNode:
+    result.tag = ObjBool
+    result.boolVar = eval(root.left).intVar < eval(root.right).intVar
+  of GeNode:
+    result.tag = ObjBool
+    result.boolVar = eval(root.left).intVar >= eval(root.right).intVar
+  of LeNode:
+    result.tag = ObjBool
+    result.boolVar = eval(root.left).intVar <= eval(root.right).intVar
   of LetNode:
     doAssert root.letType == $(eval(root.letValue).tag)
     envs[root.letName] = root.letValue
@@ -44,9 +59,15 @@ proc eval*(root: Node): Obj =
   of AddNode:
     result.tag = ObjInt
     result.intVar = eval(root.left).intVar + eval(root.right).intVar
+  of MinusNode:
+    result.tag = ObjInt
+    result.intVar = eval(root.left).intVar - eval(root.right).intVar
   of MulNode:
     result.tag = ObjInt
     result.intVar = eval(root.left).intVar * eval(root.right).intVar
+  of DivNode:
+    result.tag = ObjInt
+    result.intVar = eval(root.left).intVar div eval(root.right).intVar
   of ProgramNode:
     for r in root.code:
       temp = eval(r)
@@ -66,6 +87,10 @@ proc `$`*(root: Node): string =
     result &= root.identName
   of IntNode:
     result &= $root.intVar
+  of FloatNode:
+    result &= $root.floatVar
+  of BoolNode:
+    result &= $root.boolVar
   of AssignNode:
     result &= fmt"{$root.left} = {$root.right})"
   of LetNode:

@@ -81,9 +81,6 @@ type
   Token* = TokenObj
 
 
-
-
-
 const
   chars: set[char] = {'a'..'z', 'A'..'Z', '_'}
 
