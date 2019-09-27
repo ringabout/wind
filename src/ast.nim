@@ -8,9 +8,6 @@ proc `$`*(root: Node): string
 
 
 type
-  Stack* = seq[Scope]
-  Scope* = ref object
-    scope*: Table[string, Node]
   Obj* = ref object of RootObj
     case tag*: Value
     of ObjInt: intVar: int
@@ -19,10 +16,12 @@ type
     of ObjString: stringVar: string
 
 
-proc getUpper(tag: Value) = 
-  case tag:
-  of ObjInt:  discard
-  else: discard
+proc getUpper(res: Obj): Obj = 
+  case res.tag:
+  of ObjInt:  
+    return Obj(tag: ObjFloat, floatVar: float(res.intVar))
+  else: 
+    return res
 
 
 #直接执行
