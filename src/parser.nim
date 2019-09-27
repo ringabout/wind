@@ -202,11 +202,12 @@ proc expression*(cur: var SinglyLinkedNode[Token]): Node =
   var 
     leftValue = cur.equal
     rightValue : seq[Node]
-  if not cur.isNil:
-    while not cur.isNil and cur.eat(TkAssign):
-      rightValue.add(cur.equal)  
+  if not cur.isNil and cur.eat(TkAssign):
+    while not cur.isNil:
+      rightValue.add(cur.equal)
+      if not cur.eat(TkAssign):
+        break  
     return Node(kind: AssignNode, leftValue: leftValue, rightValue: rightValue)
-
   return leftValue
 
 proc equal*(cur: var SinglyLinkedNode[Token]): Node = 

@@ -2,10 +2,10 @@ type
   InterpretError* = Exception
 
   Value* = enum
-    ObjInt 
-    ObjFloat
-    ObjString 
-    ObjBool
+    ObjInt = "int"
+    ObjFloat = "float"
+    ObjString = "string"
+    ObjBool = "bool"
 
   
   BlockStatement* = ref object of RootObj

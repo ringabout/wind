@@ -8,10 +8,10 @@ var  lex = newLexer(source="let a: int = 12\n")
 var source = lex.tkSource.head
 
 let node = program(source)
-# discard eval(node)
+discard eval(node)
 
 
-echo $node
+# echo $node
 
 # while not source.isNil:
 #   echo source.value.kind, " -> ", source.value.text.repr, " <- "

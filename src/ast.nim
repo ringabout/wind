@@ -8,7 +8,8 @@ proc `$`*(root: Node): string
 
 
 type
-  BlockScope* = ref object
+  Stack* = seq[Scope]
+  Scope* = ref object
     scope*: Table[string, Node]
   Obj* = ref object of RootObj
     case tag*: Value
@@ -16,6 +17,7 @@ type
     of ObjFloat: floatVar: float
     of ObjBool: boolVar: bool
     of ObjString: stringVar: string
+
 
 
 
