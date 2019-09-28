@@ -1,8 +1,6 @@
 import lists
-import strutils
 import types
-
-import tables
+import strutils
 
 
 proc program*(cur: var SinglyLinkedNode[Token]): Node 
@@ -25,7 +23,6 @@ proc unary*(cur: var SinglyLinkedNode[Token]): Node
 proc primary*(cur: var SinglyLinkedNode[Token]): Node
 
 
-var envs*: Table[string, Node] 
 
 
 proc eat(cur: var SinglyLinkedNode[Token], given: TokenKind): bool = 
@@ -90,11 +87,9 @@ proc letExpr*(cur: var SinglyLinkedNode[Token]): Node =
       if cur.eat(TkAssign):
         node = Node(kind: LetNode, letName: letName, 
               letValue: cur.expression, letType: letType)
-        envs[letName] = node.letValue
       else:
         node = Node(kind: LetNode, letName: letName, 
               letValue: Node(kind: NilNode), letType: letType)
-        envs[letName] = Node(kind: NilNode)
       return node
     return Node(kind: ErrorNode)
 
@@ -112,11 +107,9 @@ proc varExpr*(cur: var SinglyLinkedNode[Token]): Node =
       if cur.eat(TkAssign):
         node = Node(kind: VarNode, varName: varName, 
               varValue: cur.expression, varType: varType)
-        envs[varName] = node.varValue
       else:
         node = Node(kind: VarNode, varName: varName, 
               varValue: Node(kind: NilNode), varType: varType)
-        envs[varName] = Node(kind: NilNode)
       return node
     return Node(kind: ErrorNode)
 
@@ -196,7 +189,6 @@ proc argExpr*(cur: var SinglyLinkedNode[Token]): Node =
 proc retExpr*(cur: var SinglyLinkedNode[Token]): Node = 
   cur.expression
 
-  
 
 proc expression*(cur: var SinglyLinkedNode[Token]): Node = 
   var 

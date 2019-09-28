@@ -1,7 +1,6 @@
-import parser
 import strformat
 import types
-import tables
+import scope
 
 
 proc `$`*(root: Node): string
@@ -15,6 +14,8 @@ type
     of ObjBool: boolVar: bool
     of ObjString: stringVar: string
 
+var 
+  envs: Scope
 
 proc getUpper(res: Obj): Obj = 
   case res.tag:
@@ -55,7 +56,13 @@ proc eval*(root: Node): Obj =
     doAssert root.letType == $(eval(root.letValue).tag)
     envs[root.letName] = root.letValue
   of VarNode:
+    doAssert root.varType == $(eval(root.varValue).tag)
     envs[root.varName] = root.varValue
+  of IfNode:
+    if eval(root.condPart).boolVar:
+      discard
+    for cond in root.elifCond:
+      discard
   of AddNode:
     result.tag = ObjInt
     result.intVar = eval(root.left).intVar + eval(root.right).intVar
@@ -72,7 +79,7 @@ proc eval*(root: Node): Obj =
     for r in root.code:
       temp = eval(r)
       if temp == nil:
-        echo envs
+        echo envs.repr
       else:
         echo temp.repr
   else:
