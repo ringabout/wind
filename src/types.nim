@@ -60,6 +60,11 @@ type
       argsPart*: seq[Node]
       returnType*: string
       returnPart*: Node
+    of ForNode:
+      startPart*: Node
+      forCond*: Node
+      forPart*: Node
+      forBody*: BlockStatement
     of NilNode: discard
     of ErrorNode: discard
     else: left*, right*: Node
@@ -68,7 +73,7 @@ type
   TokenKind* = enum 
     TkAdd, TkMinus, TkMul, TkDiv, TkMod, TkColon, Tkcomma, TkAssign
     TkEq, TkNeq, TkSymbol, TkLt, TkGt, TkLe, TkGe
-    TkComment, TkNewLine, TkEof
+    TkComment, TkNewLine, TkEof, TkSemi
     TkIndent, TkInt, TkFloat, TkBool, TkString, TkType
     # { } ( ) [ ]
     TkLBrace, TkRBrace, TkLParen, TkRParen, TkLBracket, TkRBracket

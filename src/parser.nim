@@ -9,6 +9,7 @@ proc letExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc varExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc bodyExpr*(cur: var SinglyLinkedNode[Token]): BlockStatement
 proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node
+proc forCondExpr*(cur: var SinglyLinkedNode): Node
 proc forExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node
 proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node 
@@ -115,12 +116,16 @@ proc varExpr*(cur: var SinglyLinkedNode[Token]): Node =
 
 proc bodyExpr*(cur: var SinglyLinkedNode[Token]): BlockStatement = 
   discard cur.eat(TkNewLine)
-  while not cur.isNil and cur.eat(TkNewLine):
+  while not cur.isNil:
+    echo cur.value.text
     if cur.consume(TkSymbol, "return"):
       result.blockPart.add(cur.retExpr)
     result.blockPart.add(cur.statement)
-  discard cur.eat(TkNewLine)
-  doAssert cur.eat(TkRBrace)
+    echo "->", cur.value.text
+    discard cur.eat(TkNewLine)
+    if cur.eat(TkRBrace):
+      break
+
 
 proc ifExpr*(cur: var SinglyLinkedNode[Token]): Node =  
   var 
@@ -152,11 +157,32 @@ proc whileExpr*(cur: var SinglyLinkedNode[Token]): Node =
     doAssert cur.eat(TkLBrace)
     bodyPart = cur.bodyExpr
   return Node(kind: WhileNode, whilePart: whilePart, bodyPart: bodyPart)
-        
+
+
+proc forCondExpr*(cur: var SinglyLinkedNode): Node = 
+  var 
+    startPart: Node
+    forCond: Node
+    forPart: Node
+    forBody: BlockStatement
+  doAssert cur.eat(TkLParen)
+  startPart = cur.expression
+  doAssert cur.eat(TkSemi)
+  forCond = cur.expression
+  doAssert cur.eat(TkSemi)
+  forPart = cur.expression
+  doAssert cur.eat(TkRParen)
+  doAssert cur.eat(TkLBrace)
+  forBody = cur.bodyExpr
+  return Node(kind: ForNode, startPart: startPart,
+              forCond: forCond, forPart: forPart,
+              forBody: forBody)
+
+
 proc forExpr*(cur: var SinglyLinkedNode[Token]): Node =
   if not cur.isNil:
-    if cur.eat(TkIndent):
-      discard
+    return cur.forCondExpr
+  return Node(kind: NilNode)
 
 proc funcExpr*(cur: var SinglyLinkedNode[Token]): Node =
   var

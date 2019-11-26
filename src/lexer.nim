@@ -12,20 +12,31 @@ type
     start*: int
     current*: int
 
+    # keywords = (
+    #     'BREAK', 'DO', 'INSTANCEOF', 'TYPEOF', 'ELSE',
+    #     'NEW', 'VAR', 'RETURN', 'VOID', 'CONTINUE', 'WHILE',
+    #     'FUNCTION', 'THIS', 'IF', 'DELETE', 'IN', 'DEBUGGER')
+
 const 
-  keywords = ["min", "max", "const", "let", "var", "proc", "return", 
-              "type", "mod", "div", "for", "in", "assert", "doAssert",
-              "break", "continue", "object","if", "elif", "else", 
-              "while", "echo"].toHashSet
+  keywords = ["break", "case", "catch", "continue", "default", "delete",
+              "do", "else", "finally", "for", "function", "if", "in",
+              "in", "instanceof", "new", "return", "switch", "this",
+              "throw", "try", "typeof", "var", "void", "while", "with"
+            ].toHashSet
+  # keywords = ["min", "max", "const", "let", "var", "proc", "return", 
+  #             "type", "mod", "div", "for", "in", "assert", "doAssert",
+  #             "break", "continue", "object","if", "else", 
+  #             "while", "echo"].toHashSet
   charOperators*: set[char] = {'+', '-', '*', '/', '%', 
                             '{', '}', '(', ')','[', ']', 
-                              ':', ',', 
+                              ':', ',', ';',
                               '\n'}
   charToken*: Table[char, TokenKind] = {'+': TkAdd, '-': TkMinus, 
                   '*': TkMul, '/': TkDiv, '%': TkMod, 
                   '{': TkLBrace, '}': TkRBrace, '(': TkLParen, ')': TkRParen,
                   '[': TkLBracket, ']': TkRBracket, ':': TkColon, ',': TkComma, 
-                  '<': TkLt, '>': TkGt, '#': TkComment, '\n': TkNewLine}.toTable
+                  '<': TkLt, '>': TkGt, '#': TkComment, ';': TkSemi,
+                  '\n': TkNewLine}.toTable
   typewords* = ["int", "float", "bool", "string"].toHashSet
 
 proc append*(lex: var Lexer, tk: Token) = 

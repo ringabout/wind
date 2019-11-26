@@ -63,6 +63,10 @@ proc eval*(root: Node): Obj =
       discard
     for cond in root.elifCond:
       discard
+  of WhileNode:
+    while eval(root.whilePart).boolVar:
+      for code in root.bodyPart.blockPart:
+        discard eval(code)
   of AddNode:
     result.tag = ObjInt
     result.intVar = eval(root.left).intVar + eval(root.right).intVar
@@ -111,6 +115,9 @@ proc `$`*(root: Node): string =
           "\nelse {" & fmt"{root.elsePart}" & "}"
   of WhileNode:
     result &= fmt"while {root.whilePart}" & "{" & fmt"{root.bodyPart}" & "}"
+  of ForNode:
+    result &= fmt"for({root.startPart}; {root.forCond}; {root.forPart})" &
+     "\n{" & fmt"{root.bodyPart}" & "}\n"
   of AddNode:
     result &= fmt"{root.left} + {root.right}"
   of MinusNode:
